@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسئلة العيد</title>
+    <style>
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background-color: #f8f4e9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            direction: rtl;
+        }
+        
+        h1 {
+            color: #cc9900;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background-color: #fff6d8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .questions-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 0 auto;
+            max-width: 900px;
+        }
+        
+        .question-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #e0b04b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+        
+        .question-circle:hover {
+            transform: scale(1.1);
+            background-color: #d4a82c;
+        }
+        
+        .question-circle.disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .game-controls {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #fff6d8;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .player-status {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .player {
+            padding: 10px 20px;
+            background-color: #f2e9d2;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        
+        .current-player {
+            background-color: #ffd166;
+            font-weight: bold;
+        }
+        
+        .tiebreaker {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffe8b3;
+            border-radius: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(204, 153, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(204, 153, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(204, 153, 0, 0); }
+        }
+        
+        button {
+            background-color: #cc9900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #b38600;
+        }
+        
+        /* Styles for groups and modal */
+        .group-setup {
+            margin-bottom: 20px;
+            background-color: #fff6d8;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .group-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .group-input input {
+            padding: 8px;
+            margin: 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .question-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .answer-option {
+            padding: 10px;
+            background-color: #f8f4e9;
+            border: 1px solid #e0b04b;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: right;
+        }
+        
+        .answer-option:hover {
+            background-color: #ffe8b3;
+        }
+        
+        .answer-option.correct {
+            background-color: #a3e4a3;
+        }
+        
+        /* Add animation for selected answer */
+        .answer-option.selected {
+            background-color: #ffe8b3;
+            border: 2px solid #cc9900;
+            font-weight: bold;
+        }
+        
+        /* Add legend for categories */
+        .category-legend {
+            margin: 20px auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 800px;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+        
+        .category-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        /* Make modal more mobile friendly */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .answer-option {
+                padding: 8px;
+            }
+        }
+
+        /* Add timer styles */
+        .timer-container {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .timer {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            background-color: #e0b04b;
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+            transition: background-color 0.3s;
+        }
+        
+        .timer.warning {
+            background-color: #ff9500;
+            animation: pulse-warning 1s infinite;
+        }
+        
+        .timer.danger {
+            background-color: #ff3b30;
+            animation: pulse-danger 0.5s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes pulse-danger {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1>أسئلة العيد</h1>
+    
+    <div class="instructions">
+        <p>كل مجموعة تختار سؤالاً واحدًا في دورها. عند اختيار السؤال ستظهر 4 اختيارات.</p>
+        <p>في حالة التعادل، سيتاح للمجموعات المتعادلة اختيار سؤال إضافي للفصل.</p>
+    </div>
+    
+    <div class="group-setup" id="group-setup">
+        <h3>أدخل أسماء المجموعات المتنافسة</h3>
+        <div class="group-input">
+            <input type="text" id="group1" placeholder="المجموعة 1" value="المجموعة 1">
+            <input type="text" id="group2" placeholder="المجموعة 2" value="المجموعة 2">
+        </div>
+        <button id="add-group">إضافة مجموعة</button>
+        <button id="start-game">ابدأ اللعبة</button>
+    </div>
+    
+    <div class="player-status" id="groups-container">
+        <!-- Groups will be shown here -->
+    </div>
+    
+    <div class="questions-container" id="questions-container" style="display: none;">
+        <!-- Questions will be generated here -->
+    </div>
+    
+    <div class="game-controls" style="display: none;" id="game-controls">
+        <div>عدد الأسئلة المُجابة: <span id="question-counter">0</span>/60</div>
+        <button id="next-round">الجولة التالية</button>
+        <button id="reset-game">إعادة اللعبة</button>
+    </div>
+    
+    <div class="tiebreaker" id="tiebreaker">
+        <h3>جولة فاصلة للتعادل!</h3>
+        <p>المجموعات المتعادلة يمكنهم اختيار سؤال إضافي للفصل</p>
+    </div>
+
+    <!-- Question Modal -->
+    <div class="question-modal" id="question-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <div class="question-number">سؤال رقم: <span id="modal-question-number"></span></div>
+            <!-- Add timer container -->
+            <div class="timer-container">
+                الوقت المتبقي: <div class="timer" id="question-timer">20</div>
+            </div>
+            <div class="question-text" id="modal-question-text"></div>
+            <div class="answer-options" id="answer-options">
+                <!-- Answer options will be generated here -->
+            </div>
+            <button id="confirm-answer" style="margin-top: 20px;">تأكيد الإجابة</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch questions from JSON file
+            fetch('./data/questions.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    initialize(data);
+                })
+                .catch(error => {
+                    console.error('Error loading questions:', error);
+                    // Fallback to hardcoded questions if JSON fails to load
+                    const fallbackData = {
+                        categories: [
+                            {
+                                name: "أسئلة متنوعة",
+                                questions: Array.from({ length: 60 }, (_, i) => ({
+                                    question: `سؤال رقم ${i + 1}؟`,
+                                    options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
+                                    correctAnswer: Math.floor(Math.random() * 4)
+                                }))
+                            }
+                        ]
+                    };
+                    
+                    alert('تعذر تحميل الأسئلة من الملف. سيتم استخدام أسئلة افتراضية.');
+                    initialize(fallbackData);
+                });
+
+            function initialize(data) {
+                const categories = data.categories;
+                let allQuestions = [];
+                let categoryMap = {};
+                
+                // Process categories and map questions
+                categories.forEach((category, categoryIndex) => {
+                    category.questions.forEach((question, questionIndex) => {
+                        const questionId = allQuestions.length + 1;
+                        question.id = questionId;
+                        question.categoryIndex = categoryIndex;
+                        categoryMap[questionId] = {
+                            name: category.name,
+                            index: categoryIndex
+                        };
+                        allQuestions.push(question);
+                    });
+                });
+
+                // Shuffle questions to randomize
+                shuffle(allQuestions);
+                
+                // Trim to 60 questions if we have more
+                if (allQuestions.length > 60) {
+                    allQuestions = allQuestions.slice(0, 60);
+                }
+                
+                // Add more questions if we have less than 60
+                while (allQuestions.length < 60) {
+                    const questionId = allQuestions.length + 1;
+                    allQuestions.push({
+                        id: questionId,
+                        question: `سؤال إضافي رقم ${questionId}`,
+                        options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
+                        correctAnswer: Math.floor(Math.random() * 4),
+                        categoryIndex: -1 // Indicating this is an additional question
+                    });
+                }
+
+                // Reassign IDs to be sequential 1-60
+                allQuestions.forEach((question, index) => {
+                    question.id = index + 1;
+                });
+                
+                const questionsContainer = document.getElementById('questions-container');
+                const questionCounter = document.getElementById('question-counter');
+                const tiebreakerSection = document.getElementById('tiebreaker');
+                const groupsContainer = document.getElementById('groups-container');
+                const questionModal = document.getElementById('question-modal');
+                const modalQuestionNumber = document.getElementById('modal-question-number');
+                const modalQuestionText = document.getElementById('modal-question-text');
+                const answerOptions = document.getElementById('answer-options');
+                const closeModalBtn = document.getElementById('close-modal');
+                const confirmAnswerBtn = document.getElementById('confirm-answer');
+                const gameControls = document.getElementById('game-controls');
+                const groupSetup = document.getElementById('group-setup');
+                
+                let groups = [];
+                let currentGroupIndex = 0;
+                let questionsAnswered = 0;
+                let currentQuestionElement = null;
+                let timerInterval = null;
+                
+                // Rest of your existing event handlers and functions
+                
+                // Add Group button
+                document.getElementById('add-group').addEventListener('click', function() {
+                    const groupCount = document.querySelectorAll('.group-input input').length + 1;
+                    const groupInput = document.createElement('input');
+                    groupInput.type = 'text';
+                    groupInput.placeholder = `المجموعة ${groupCount}`;
+                    groupInput.value = `المجموعة ${groupCount}`;
+                    document.querySelector('.group-input').appendChild(groupInput);
+                });
+                
+                // Start Game button
+                document.getElementById('start-game').addEventListener('click', function() {
+                    const groupInputs = document.querySelectorAll('.group-input input');
+                    if(groupInputs.length < 2) {
+                        alert('يجب إدخال مجموعتين على الأقل');
+                        return;
+                    }
+                    
+                    // Initialize groups
+                    groups = [];
+                    groupsContainer.innerHTML = '';
+                    
+                    groupInputs.forEach((input, index) => {
+                        const groupName = input.value.trim() || `المجموعة ${index + 1}`;
+                        const groupElement = document.createElement('div');
+                        groupElement.className = 'player' + (index === 0 ? ' current-player' : '');
+                        groupElement.innerHTML = `
+                            ${groupName}
+                            <div class="score">0</div>
+                        `;
+                        groupsContainer.appendChild(groupElement);
+                        
+                        groups.push({
+                            name: groupName,
+                            element: groupElement,
+                            score: 0
+                        });
+                    });
+                    
+                    // Show questions and hide setup
+                    questionsContainer.style.display = 'flex';
+                    gameControls.style.display = 'block';
+                    groupSetup.style.display = 'none';
+                    
+                    // Create questions
+                    createQuestions();
+                });
+                
+                function createQuestions() {
+                    questionsContainer.innerHTML = '';
+                    
+                    // Create category headers
+                    const categoryHeader = document.createElement('div');
+                    categoryHeader.className = 'category-header';
+                    categoryHeader.style.width = '100%';
+                    categoryHeader.style.textAlign = 'center';
+                    categoryHeader.style.marginBottom = '15px';
+                    categoryHeader.innerHTML = `<h3>اختر سؤالاً من 60 سؤالاً متنوعًا</h3>`;
+                    questionsContainer.appendChild(categoryHeader);
+                    
+                    // Create question circles
+                    for (let i = 0; i < allQuestions.length; i++) {
+                        const question = allQuestions[i];
+                        const questionCircle = document.createElement('div');
+                        questionCircle.className = 'question-circle';
+                        questionCircle.textContent = question.id;
+                        questionCircle.dataset.question = question.id;
+                        
+                        // Add color based on category
+                        if (question.categoryIndex >= 0) {
+                            const categoryColors = [
+                                '#e07a5f', // أسئلة دينية
+                                '#81b29a', // أسئلة عن سلطنة عمان
+                                '#f2cc8f', // أسئلة عامة
+                                '#3d405b', // تاريخ سلطنة عمان
+                                '#e07a5f', // الجغرافيا العالمية
+                                '#81b29a', // العلوم والتكنولوجيا
+                                '#f2cc8f', // الفن والثقافة
+                                '#3d405b'  // الرياضة
+                            ];
+                            
+                            questionCircle.style.backgroundColor = categoryColors[question.categoryIndex % categoryColors.length];
+                            
+                            // Add tooltip for category name
+                            questionCircle.title = categories[question.categoryIndex].name;
+                        }
+                        
+                        questionCircle.addEventListener('click', function() {
+                            if (!this.classList.contains('disabled')) {
+                                openQuestionModal(this, allQuestions);
+                            }
+                        });
+                        
+                        questionsContainer.appendChild(questionCircle);
+                    }
+                }
+                
+                function openQuestionModal(questionElement, questions) {
+                    currentQuestionElement = questionElement;
+                    const questionId = parseInt(questionElement.dataset.question);
+                    const question = questions.find(q => q.id === questionId);
+                    
+                    if (!question) {
+                        alert('لم يتم العثور على السؤال');
+                        return;
+                    }
+                    
+                    // Clear any previous category element
+                    const previousCategoryElement = document.querySelector('.question-category');
+                    if (previousCategoryElement) {
+                        previousCategoryElement.remove();
+                    }
+                    
+                    // Set question text and number
+                    modalQuestionNumber.textContent = questionId;
+                    modalQuestionText.textContent = question.question;
+                    
+                    // Add category if available
+                    if (question.categoryIndex >= 0 && categories[question.categoryIndex]) {
+                        const categoryName = categories[question.categoryIndex].name;
+                        const categoryElement = document.createElement('div');
+                        categoryElement.className = 'question-category';
+                        categoryElement.textContent = categoryName;
+                        categoryElement.style.color = '#666';
+                        categoryElement.style.marginBottom = '10px';
+                        categoryElement.style.fontWeight = 'bold';
+                        modalQuestionText.parentNode.insertBefore(categoryElement, modalQuestionText);
+                    }
+                    
+                    // Create answer options
+                    answerOptions.innerHTML = '';
+                    question.options.forEach((option, index) => {
+                        const optionElement = document.createElement('div');
+                        optionElement.className = 'answer-option';
+                        optionElement.textContent = option;
+                        optionElement.dataset.index = index;
+                        optionElement.dataset.correct = (index === question.correctAnswer);
+                        
+                        optionElement.addEventListener('click', function() {
+                            document.querySelectorAll('.answer-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                        });
+                        
+                        answerOptions.appendChild(optionElement);
+                    });
+                    
+                    // Disable closing the modal until answer is confirmed
+                    closeModalBtn.style.display = 'none'; // Hide close button completely
+                    
+                    // Show modal
+                    questionModal.style.display = 'flex';
+                    
+                    // Start timer
+                    startTimer();
+                }
+                
+                // Timer functionality
+                function startTimer() {
+                    // Clear any existing timer
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                    }
+                    
+                    const timerElement = document.getElementById('question-timer');
+                    let timeLeft = 20;
+                    timerElement.textContent = timeLeft;
+                    timerElement.className = 'timer';
+                    
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        timerElement.textContent = timeLeft;
+                        
+                        // Add warning classes based on time left
+                        if (timeLeft <= 10 && timeLeft > 5) {
+                            timerElement.className = 'timer warning';
+                        } else if (timeLeft <= 5) {
+                            timerElement.className = 'timer danger';
+                        }
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            timeExpired();
+                        }
+                    }, 1000);
+                }
+                
+                function timeExpired() {
+                    // Find the correct answer and select it (for display purposes)
+                    const correctOption = document.querySelector('.answer-option[data-correct="true"]');
+                    
+                    // Show the correct answer
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        if (option.dataset.correct === "true") {
+                            option.classList.add('correct');
+                        }
+                    });
+                    
+                    // Show a message about time expiration
+                    const timeoutMsg = document.createElement('div');
+                    timeoutMsg.textContent = 'انتهى الوقت!';
+                    timeoutMsg.style.color = '#ff3b30';
+                    timeoutMsg.style.fontWeight = 'bold';
+                    timeoutMsg.style.fontSize = '18px';
+                    timeoutMsg.style.marginTop = '10px';
+                    timeoutMsg.style.textAlign = 'center';
+                    document.getElementById('answer-options').appendChild(timeoutMsg);
+                    
+                    // Disable the option selection
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        option.style.pointerEvents = 'none';
+                    });
+                    
+                    // After time expires, show the close button again
+                    document.getElementById('close-modal').style.display = 'block';
+                    
+                    // Auto-confirm after 2 seconds
+                    setTimeout(() => {
+                        document.getElementById('confirm-answer').click();
+                    }, 2000);
+                }
+                
+                // Close modal - modify to prevent closing without answering
+                closeModalBtn.addEventListener('click', function(e) {
+                    // If the question hasn't been answered yet and timer is still running, prevent closing
+                    if (timerInterval) {
+                        e.preventDefault();
+                        alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                        return;
+                    }
+                    
+                    // Otherwise allow closing
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                    }
+                    questionModal.style.display = 'none';
+                });
+                
+                // Confirm answer - update to allow closing after confirmation
+                confirmAnswerBtn.addEventListener('click', function() {
+                    // Clear timer
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null; // Set to null to indicate answer is confirmed
+                    }
+                    
+                    // Show the close button again after confirmation
+                    document.getElementById('close-modal').style.display = 'block';
+                    
+                    const selectedOption = document.querySelector('.answer-option.selected');
+                    if (!selectedOption) {
+                        // If no option is selected, treat as incorrect
+                        document.querySelectorAll('.answer-option').forEach(option => {
+                            if (option.dataset.correct === "true") {
+                                option.classList.add('correct');
+                            }
+                        });
+                        
+                        // Disable the question
+                        currentQuestionElement.classList.add('disabled');
+                        
+                        // Update question counter
+                        questionsAnswered++;
+                        questionCounter.textContent = questionsAnswered;
+                        
+                        // Switch to next group
+                        groups[currentGroupIndex].element.classList.remove('current-player');
+                        currentGroupIndex = (currentGroupIndex + 1) % groups.length;
+                        groups[currentGroupIndex].element.classList.add('current-player');
+                        
+                        // Close modal after showing correct answer
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                            // Check for tiebreaker if needed
+                            if (questionsAnswered % 5 === 0) {
+                                checkForTiebreaker();
+                            }
+                        }, 1500);
+                        
+                        return;
+                    }
+                    
+                    // Mark the correct answer
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        if (option.dataset.correct === "true") {
+                            option.classList.add('correct');
+                        }
+                    });
+                    
+                    // If answer is correct, update current group's score
+                    const isCorrect = selectedOption.dataset.correct === "true";
+                    if (isCorrect) {
+                        groups[currentGroupIndex].score++;
+                        groups[currentGroupIndex].element.querySelector('.score').textContent = 
+                            groups[currentGroupIndex].score;
+                    }
+                    
+                    // Disable the question
+                    currentQuestionElement.classList.add('disabled');
+                    
+                    // Update question counter
+                    questionsAnswered++;
+                    questionCounter.textContent = questionsAnswered;
+                    
+                    // Switch to next group
+                    groups[currentGroupIndex].element.classList.remove('current-player');
+                    currentGroupIndex = (currentGroupIndex + 1) % groups.length;
+                    groups[currentGroupIndex].element.classList.add('current-player');
+                    
+                    // Check if we need to check for tiebreaker
+                    if (questionsAnswered % 5 === 0) {
+                        // Close modal first, then check for tiebreaker
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                            checkForTiebreaker();
+                        }, 1500);
+                    } else {
+                        // Close modal after showing correct answer
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                        }, 1500);
+                    }
+                });
+                
+                function checkForTiebreaker() {
+                    // Get max score
+                    const scores = groups.map(g => g.score);
+                    const maxScore = Math.max(...scores);
+                    
+                    // Count groups with max score
+                    const tiedGroups = groups.filter(g => g.score === maxScore).length;
+                    
+                    if (tiedGroups > 1) {
+                        tiebreakerSection.style.display = 'block';
+                    } else {
+                        tiebreakerSection.style.display = 'none';
+                    }
+                }
+                
+                // Next round button
+                document.getElementById('next-round').addEventListener('click', function() {
+                    tiebreakerSection.style.display = 'none';
+                });
+                
+                // Reset game button - enhance to recreate questions
+                document.getElementById('reset-game').addEventListener('click', function() {
+                    // Reshuffle questions for a new game
+                    shuffle(allQuestions);
+                    
+                    // Recreate question circles
+                    createQuestions();
+                    
+                    // Reset scores
+                    groups.forEach(group => {
+                        group.score = 0;
+                        group.element.querySelector('.score').textContent = '0';
+                    });
+                    
+                    // Reset questions
+                    const questionElements = document.querySelectorAll('.question-circle');
+                    questionElements.forEach(q => q.classList.remove('disabled'));
+                    
+                    // Reset counter
+                    questionsAnswered = 0;
+                    questionCounter.textContent = '0';
+                    
+                    // Reset current group
+                    groups.forEach(g => g.element.classList.remove('current-player'));
+                    currentGroupIndex = 0;
+                    groups[currentGroupIndex].element.classList.add('current-player');
+                    
+                    // Hide tiebreaker
+                    tiebreakerSection.style.display = 'none';
+                });
+                
+                // Add keyboard support for modal - modify to prevent Escape key from closing
+                document.addEventListener('keydown', function(event) {
+                    if (questionModal.style.display === 'flex') {
+                        // Prevent Escape key from closing the modal if timer is still running
+                        if (event.key === 'Escape') {
+                            if (timerInterval) {
+                                event.preventDefault();
+                                alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                                return;
+                            }
+                            questionModal.style.display = 'none';
+                        }
+                        // Confirm answer with Enter key
+                        else if (event.key === 'Enter') {
+                            document.getElementById('confirm-answer').click();
+                        }
+                        // Select options with number keys 1-4
+                        else if (['1', '2', '3', '4'].includes(event.key)) {
+                            const index = parseInt(event.key) - 1;
+                            const options = document.querySelectorAll('.answer-option');
+                            if (index < options.length) {
+                                options.forEach(opt => opt.classList.remove('selected'));
+                                options[index].classList.add('selected');
+                            }
+                        }
+                    }
+                });
+                
+                // Also prevent closing when clicking outside the modal
+                questionModal.addEventListener('click', function(event) {
+                    if (event.target === questionModal && timerInterval) {
+                        event.stopPropagation();
+                        alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                    }
+                });
+                
+                // Fisher-Yates shuffle algorithm
+                function shuffle(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
