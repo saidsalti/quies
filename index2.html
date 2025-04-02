@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسئلة العيد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #5c7c3e; /* Festive green */
+            --secondary-color: #e5b34a; /* Gold */
+            --accent-color: #cb703a; /* Warm accent */
+            --light-bg: #f8f7f2;
+            --dark-text: #333333;
+            --light-text: #ffffff;
+            --correct-color: #4caf50;
+            --wrong-color: #f44336;
+            --warning-color: #ff9800;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            direction: rtl;
+            color: var(--dark-text);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(#5c7c3e33 2px, transparent 2px),
+                radial-gradient(#e5b34a33 2px, transparent 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            background-attachment: fixed;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .instructions {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+            border-bottom: 4px solid var(--secondary-color);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .instructions:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .questions-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto;
+            max-width: 960px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .question-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--secondary-color), #d4a82c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .question-circle:before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .question-circle:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .question-circle:hover:before {
+            opacity: 1;
+        }
+        
+        .question-circle.disabled {
+            background: linear-gradient(145deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .game-controls {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .player-status {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .player {
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .player:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--secondary-color);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        
+        .player:hover:after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .current-player {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #78a04b 100%);
+            color: white;
+            font-weight: bold;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(92, 124, 62, 0.3);
+        }
+        
+        .current-player:after {
+            display: none;
+        }
+        
+        .player .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 10px;
+            color: var(--accent-color);
+        }
+        
+        .current-player .score {
+            color: white;
+        }
+        
+        .tiebreaker {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #e67e22 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(203, 112, 58, 0.4);
+            animation: pulse-glow 2s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(203, 112, 58, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(203, 112, 58, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(203, 112, 58, 0); }
+        }
+        
+        button {
+            background: linear-gradient(to bottom, var(--primary-color), #4a6532);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:hover:before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button#add-group {
+            background: linear-gradient(to bottom, var(--secondary-color), #c99c3a);
+        }
+        
+        button#reset-game {
+            background: linear-gradient(to bottom, #909090, #707070);
+        }
+        
+        .group-setup {
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .group-setup:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+        
+        .group-input {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+        
+        .group-input input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            width: 180px;
+            font-family: 'Tajawal', Arial, sans-serif;
+        }
+        
+        .group-input input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(92, 124, 62, 0.2);
+            outline: none;
+        }
+        
+        .question-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: modalAppear 0.4s forwards;
+            overflow: hidden;
+        }
+        
+        @keyframes modalAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-content:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .close-modal:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .question-number {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .question-category {
+            background-color: var(--primary-color);
+            color: white !important;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 22px;
+            margin: 20px 0 25px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: var(--dark-text);
+        }
+        
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .answer-option {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .answer-option:hover {
+            background-color: #f0f4ff;
+            border-color: #c5d5f5;
+            transform: translateX(-5px);
+        }
+        
+        .answer-option.selected {
+            background-color: #e6f4ea;
+            border-color: var(--primary-color);
+            font-weight: bold;
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .answer-option.correct {
+            background-color: var(--correct-color);
+            color: white;
+            border-color: #2e7d32;
+            animation: correctPulse 1s;
+        }
+        
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .timer-container {
+            margin: 0 auto 25px;
+            font-size: 18px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .timer-wrapper {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+        
+        .timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(var(--secondary-color) var(--progress), #f0f0f0 var(--progress));
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-weight: bold;
+            font-size: 24px;
+            position: relative;
+        }
+        
+        .timer:after {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .timer-number {
+            position: relative;
+            z-index: 2;
+            color: var(--dark-text);
+        }
+        
+        .timer.warning {
+            background: conic-gradient(var(--warning-color) var(--progress), #f0f0f0 var(--progress));
+            animation: shake 0.5s;
+        }
+        
+        .timer.danger {
+            background: conic-gradient(var(--wrong-color) var(--progress), #f0f0f0 var(--progress));
+            animation: shake 0.5s infinite;
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .category-legend {
+            margin: 20px auto;
+            padding: 15px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 800px;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 15px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .category-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .time-expired {
+            color: var(--wrong-color);
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 15px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: rgba(244, 67, 54, 0.1);
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .group-input input {
+                width: 140px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 18px;
+            }
+            
+            .answer-option {
+                padding: 12px;
+            }
+            
+            .timer-wrapper {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        /* Festive additions */
+        .eid-light {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            opacity: 0.6;
+            filter: blur(5px);
+            animation: float 3s infinite ease-in-out;
+            z-index: -1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--secondary-color);
+            opacity: 0;
+            z-index: 1000;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Category badges on question circles */
+        .category-badge {
+            position: absolute;
+            right: -5px;
+            top: -5px;
+            background-color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--dark-text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Winner announcement */
+        .winner-announcement {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .winner-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: popIn 0.5s forwards;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .winner-trophy {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .winner-name {
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .score-display {
+            font-size: 24px;
+            margin: 15px 0;
+        }
+        
+        /* Fallback for decoration elements */
+        .decoration {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .decoration {
+                display: block;
+                position: absolute;
+                opacity: 0.2;
+                z-index: -1;
+            }
+            
+            .decoration.top-left {
+                top: 50px;
+                left: 50px;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: radial-gradient(circle, #e5b34a 0%, transparent 70%);
+            }
+            
+            .decoration.top-right {
+                top: 70px;
+                right: 50px;
+                width: 120px;
+                height: 120px;
+                background: radial-gradient(circle at 70% 30%, #5c7c3e 0%, transparent 70%);
+            }
+            
+            .decoration.bottom-left {
+                bottom: 50px;
+                left: 70px;
+                width: 150px;
+                height: 80px;
+                background: linear-gradient(45deg, #cb703a 0%, transparent 70%);
+                border-radius: 100px / 50px;
+            }
+            
+            .decoration.bottom-right {
+                bottom: 70px;
+                right: 50px;
+                width: 90px;
+                height: 90px;
+                border-radius: 50%;
+                background: radial-gradient(circle, #e5b34a 0%, transparent 70%);
+            }
+        }
+        
+        /* Fix for animation keyframes */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes fadeInOption {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>أسئلة العيد</h1>
+        
+        <div class="instructions">
+            <p>كل مجموعة تختار سؤالاً واحدًا في دورها. عند اختيار السؤال ستظهر 4 اختيارات.</p>
+            <p>في حالة التعادل، سيتاح للمجموعات المتعادلة اختيار سؤال إضافي للفصل.</p>
+            <p>لديك <strong>20 ثانية</strong> للإجابة على كل سؤال!</p>
+        </div>
+        
+        <div class="group-setup" id="group-setup">
+            <h3>أدخل أسماء المجموعات المتنافسة</h3>
+            <div class="group-input">
+                <input type="text" id="group1" placeholder="المجموعة 1" value="المجموعة 1">
+                <input type="text" id="group2" placeholder="المجموعة 2" value="المجموعة 2">
+            </div>
+            <button id="add-group">إضافة مجموعة</button>
+            <button id="start-game">ابدأ اللعبة</button>
+        </div>
+        
+        <div class="player-status" id="groups-container">
+            <!-- Groups will be shown here -->
+        </div>
+        
+        <div class="questions-container" id="questions-container" style="display: none;">
+            <!-- Questions will be generated here -->
+        </div>
+        
+        <div class="game-controls" style="display: none;" id="game-controls">
+            <div>عدد الأسئلة المُجابة: <span id="question-counter">0</span>/60</div>
+            <button id="next-round">الجولة التالية</button>
+            <button id="reset-game">إعادة اللعبة</button>
+        </div>
+        
+        <div class="tiebreaker" id="tiebreaker">
+            <h3>جولة فاصلة للتعادل!</h3>
+            <p>المجموعات المتعادلة يمكنهم اختيار سؤال إضافي للفصل</p>
+        </div>
+        
+        <!-- Category legend -->
+        <div class="category-legend" id="category-legend" style="display: none;">
+            <!-- Category legend will be filled dynamically -->
+        </div>
+    </div>
+
+    <!-- Question Modal - Fixed duplicate issue -->
+    <div class="question-modal" id="question-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <div class="question-number">سؤال رقم: <span id="modal-question-number"></span></div>
+            
+            <!-- Timer with circular progress -->
+            <div class="timer-container">
+                الوقت المتبقي: 
+                <div class="timer-wrapper">
+                    <div class="timer" id="question-timer" style="--progress: 100%">
+                        <span class="timer-number">20</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="question-text" id="modal-question-text"></div>
+            <div class="answer-options" id="answer-options">
+                <!-- Answer options will be generated here -->
+            </div>
+            
+            <button id="confirm-answer" style="margin-top: 25px; width: 200px;">تأكيد الإجابة</button>
+        </div>
+    </div>
+
+    <!-- Winner announcement modal -->
+    <div class="winner-announcement" id="winner-announcement">
+        <div class="winner-content">
+            <div class="winner-trophy">🏆</div>
+            <div class="winner-name" id="winner-name">المجموعة الفائزة</div>
+            <div class="score-display" id="winner-score">0 نقاط</div>
+            <button id="close-winner">العودة إلى اللعبة</button>
+            <button id="new-game">لعبة جديدة</button>
+        </div>
+    </div>
+
+    <!-- Decorative elements -->
+    <div class="decoration top-left"></div>
+    <div class="decoration top-right"></div>
+    <div class="decoration bottom-left"></div>
+    <div class="decoration bottom-right"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create festive lights
+            createFestiveLights();
+            
+            // Fetch questions from JSON file with error handling
+            fetchQuestions();
+
+            function fetchQuestions() {
+                fetch('./data/questions.json')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        initialize(data);
+                    })
+                    .catch(error => {
+                        console.error('Error loading questions:', error);
+                        // Use fallback data with manually structured questions
+                        const fallbackData = createFallbackData();
+                        alert('تعذر تحميل الأسئلة من الملف. سيتم استخدام أسئلة افتراضية.');
+                        initialize(fallbackData);
+                    });
+            }
+
+            function createFallbackData() {
+                return {
+                    categories: [
+                        {
+                            name: "أسئلة متنوعة",
+                            questions: Array.from({ length: 60 }, (_, i) => ({
+                                question: `سؤال رقم ${i + 1}؟`,
+                                options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
+                                correctAnswer: Math.floor(Math.random() * 4)
+                            }))
+                        }
+                    ]
+                };
+            }
+            
+            function createFestiveLights() {
+                for (let i = 0; i < 15; i++) {
+                    const light = document.createElement('div');
+                    light.className = 'eid-light';
+                    light.style.left = `${Math.random() * 100}%`;
+                    light.style.top = `${Math.random() * 100}%`;
+                    light.style.animationDelay = `${Math.random() * 3}s`;
+                    
+                    // Randomly choose a festive color
+                    const colors = ['#e5b34a', '#5c7c3e', '#cb703a'];
+                    light.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    document.body.appendChild(light);
+                }
+            }
+
+            function initialize(data) {
+                if (!data || !data.categories || !Array.isArray(data.categories)) {
+                    console.error('Invalid data format:', data);
+                    data = createFallbackData();
+                }
+
+                const categories = data.categories;
+                let allQuestions = [];
+                let categoryMap = {};
+                const categoryColors = [
+                    '#e07a5f', // أسئلة دينية
+                    '#81b29a', // أسئلة عن سلطنة عمان
+                    '#f2cc8f', // أسئلة عامة
+                    '#3d405b', // تاريخ سلطنة عمان
+                    '#9c6644', // الجغرافيا العالمية
+                    '#4d908e', // العلوم والتكنولوجيا
+                    '#f9c74f', // الفن والثقافة
+                    '#577590'  // الرياضة
+                ];
+                const categoryIcons = [
+                    '📿', // دينية
+                    '🏛️', // سلطنة عمان
+                    '❓', // عامة
+                    '📜', // تاريخ
+                    '🌍', // جغرافيا
+                    '🔬', // علوم
+                    '🎭', // فن
+                    '⚽'  // رياضة
+                ];
+                
+                // Process categories and map questions
+                categories.forEach((category, categoryIndex) => {
+                    if (!category.questions || !Array.isArray(category.questions)) {
+                        console.error('Invalid category format:', category);
+                        return;
+                    }
+                    
+                    category.questions.forEach((question, questionIndex) => {
+                        if (!question.options || !Array.isArray(question.options)) {
+                            console.error('Invalid question format:', question);
+                            return;
+                        }
+                        
+                        const questionId = allQuestions.length + 1;
+                        question.id = questionId;
+                        question.categoryIndex = categoryIndex;
+                        question.categoryIcon = categoryIcons[categoryIndex % categoryIcons.length];
+                        categoryMap[questionId] = {
+                            name: category.name,
+                            index: categoryIndex,
+                            color: categoryColors[categoryIndex % categoryColors.length],
+                            icon: categoryIcons[categoryIndex % categoryIcons.length]
+                        };
+                        allQuestions.push(question);
+                    });
+                });
+
+                // Create category legend
+                const categoryLegend = document.getElementById('category-legend');
+                categoryLegend.innerHTML = ''; // Clear existing content
+                
+                categories.forEach((category, index) => {
+                    const categoryItem = document.createElement('div');
+                    categoryItem.className = 'category-item';
+                    
+                    const categoryColor = document.createElement('div');
+                    categoryColor.className = 'category-color';
+                    categoryColor.style.backgroundColor = categoryColors[index % categoryColors.length];
+                    
+                    categoryItem.innerHTML = `${categoryIcons[index % categoryIcons.length]} ${category.name}`;
+                    categoryItem.prepend(categoryColor);
+                    categoryLegend.appendChild(categoryItem);
+                });
+
+                // Shuffle questions to randomize
+                shuffle(allQuestions);
+                
+                // Trim to 60 questions if we have more
+                if (allQuestions.length > 60) {
+                    allQuestions = allQuestions.slice(0, 60);
+                }
+                
+                // Add more questions if we have less than 60
+                while (allQuestions.length < 60) {
+                    const questionId = allQuestions.length + 1;
+                    allQuestions.push({
+                        id: questionId,
+                        question: `سؤال إضافي رقم ${questionId}`,
+                        options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
+                        correctAnswer: Math.floor(Math.random() * 4),
+                        categoryIndex: -1 // Indicating this is an additional question
+                    });
+                }
+
+                // Reassign IDs to be sequential 1-60
+                allQuestions.forEach((question, index) => {
+                    question.id = index + 1;
+                });
+                
+                const questionsContainer = document.getElementById('questions-container');
+                const questionCounter = document.getElementById('question-counter');
+                const tiebreakerSection = document.getElementById('tiebreaker');
+                const groupsContainer = document.getElementById('groups-container');
+                const questionModal = document.getElementById('question-modal');
+                const modalQuestionNumber = document.getElementById('modal-question-number');
+                const modalQuestionText = document.getElementById('modal-question-text');
+                const answerOptions = document.getElementById('answer-options');
+                const closeModalBtn = document.getElementById('close-modal');
+                const confirmAnswerBtn = document.getElementById('confirm-answer');
+                const gameControls = document.getElementById('game-controls');
+                const groupSetup = document.getElementById('group-setup');
+                const winnerAnnouncement = document.getElementById('winner-announcement');
+                const winnerName = document.getElementById('winner-name');
+                const winnerScore = document.getElementById('winner-score');
+                
+                let groups = [];
+                let currentGroupIndex = 0;
+                let questionsAnswered = 0;
+                let currentQuestionElement = null;
+                let timerInterval = null;
+                let gameEnded = false;
+
+                // Add Group button
+                document.getElementById('add-group').addEventListener('click', function() {
+                    const groupCount = document.querySelectorAll('.group-input input').length + 1;
+                    const groupInput = document.createElement('input');
+                    groupInput.type = 'text';
+                    groupInput.placeholder = `المجموعة ${groupCount}`;
+                    groupInput.value = `المجموعة ${groupCount}`;
+                    document.querySelector('.group-input').appendChild(groupInput);
+                });
+                
+                // Start Game button
+                document.getElementById('start-game').addEventListener('click', function() {
+                    const groupInputs = document.querySelectorAll('.group-input input');
+                    if(groupInputs.length < 2) {
+                        alert('يجب إدخال مجموعتين على الأقل');
+                        return;
+                    }
+                    
+                    // Initialize groups
+                    groups = [];
+                    groupsContainer.innerHTML = '';
+                    
+                    groupInputs.forEach((input, index) => {
+                        const groupName = input.value.trim() || `المجموعة ${index + 1}`;
+                        const groupElement = document.createElement('div');
+                        groupElement.className = 'player' + (index === 0 ? ' current-player' : '');
+                        groupElement.innerHTML = `
+                            ${groupName}
+                            <div class="score">0</div>
+                        `;
+                        groupsContainer.appendChild(groupElement);
+                        
+                        groups.push({
+                            name: groupName,
+                            element: groupElement,
+                            score: 0
+                        });
+                    });
+                    
+                    // Show questions and hide setup
+                    questionsContainer.style.display = 'flex';
+                    gameControls.style.display = 'block';
+                    groupSetup.style.display = 'none';
+                    categoryLegend.style.display = 'flex';
+                    
+                    // Create questions
+                    createQuestions();
+                    
+                    // Trigger confetti when starting the game
+                    createConfetti();
+                });
+                
+                function createQuestions() {
+                    questionsContainer.innerHTML = '';
+                    
+                    // Create category headers
+                    const categoryHeader = document.createElement('div');
+                    categoryHeader.className = 'category-header';
+                    categoryHeader.style.width = '100%';
+                    categoryHeader.style.textAlign = 'center';
+                    categoryHeader.style.marginBottom = '15px';
+                    categoryHeader.innerHTML = `<h3>اختر سؤالاً من 60 سؤالاً متنوعًا</h3>`;
+                    questionsContainer.appendChild(categoryHeader);
+                    
+                    // Create question circles
+                    for (let i = 0; i < allQuestions.length; i++) {
+                        const question = allQuestions[i];
+                        const questionCircle = document.createElement('div');
+                        questionCircle.className = 'question-circle';
+                        questionCircle.textContent = question.id;
+                        questionCircle.dataset.question = question.id;
+                        
+                        // Add color based on category
+                        if (question.categoryIndex >= 0) {
+                            questionCircle.style.backgroundColor = categoryColors[question.categoryIndex % categoryColors.length];
+                            
+                            // Add category badge with icon
+                            if (question.categoryIcon) {
+                                const badge = document.createElement('div');
+                                badge.className = 'category-badge';
+                                badge.textContent = question.categoryIcon;
+                                questionCircle.appendChild(badge);
+                            }
+                            
+                            // Add tooltip for category name
+                            questionCircle.title = categories[question.categoryIndex].name;
+                        }
+                        
+                        questionCircle.addEventListener('click', function() {
+                            if (!this.classList.contains('disabled')) {
+                                openQuestionModal(this);
+                            }
+                        });
+                        
+                        questionsContainer.appendChild(questionCircle);
+                    }
+                }
+                
+                function openQuestionModal(questionElement) {
+                    currentQuestionElement = questionElement;
+                    const questionId = parseInt(questionElement.dataset.question);
+                    const question = allQuestions.find(q => q.id === questionId);
+                    
+                    if (!question) {
+                        alert('لم يتم العثور على السؤال');
+                        return;
+                    }
+                    
+                    // Clear any previous category element
+                    const previousCategoryElement = document.querySelector('.question-category');
+                    if (previousCategoryElement) {
+                        previousCategoryElement.remove();
+                    }
+                    
+                    // Set question text and number
+                    modalQuestionNumber.textContent = questionId;
+                    modalQuestionText.textContent = question.question;
+                    
+                    // Add category if available
+                    if (question.categoryIndex >= 0 && categories[question.categoryIndex]) {
+                        const categoryName = categories[question.categoryIndex].name;
+                        const categoryElement = document.createElement('div');
+                        categoryElement.className = 'question-category';
+                        
+                        // Add icon to category label
+                        if (question.categoryIcon) {
+                            const icon = document.createElement('span');
+                            icon.textContent = question.categoryIcon;
+                            icon.style.marginLeft = '5px';
+                            categoryElement.appendChild(icon);
+                        }
+                        
+                        categoryElement.appendChild(document.createTextNode(categoryName));
+                        categoryElement.style.backgroundColor = categoryColors[question.categoryIndex % categoryColors.length];
+                        categoryElement.style.color = 'white';
+                        categoryElement.style.padding = '5px 15px';
+                        categoryElement.style.borderRadius = '20px';
+                        categoryElement.style.display = 'inline-block';
+                        categoryElement.style.fontWeight = 'bold';
+                        categoryElement.style.marginBottom = '15px';
+                        modalQuestionText.parentNode.insertBefore(categoryElement, modalQuestionText);
+                    }
+                    
+                    // Create answer options with letter labels (أ، ب، ج، د)
+                    answerOptions.innerHTML = '';
+                    const arabicLetters = ['أ', 'ب', 'ج', 'د'];
+                    
+                    question.options.forEach((option, index) => {
+                        const optionElement = document.createElement('div');
+                        optionElement.className = 'answer-option';
+                        optionElement.dataset.index = index;
+                        optionElement.dataset.correct = (index === question.correctAnswer ? "true" : "false");
+                        
+                        // Add Arabic letter before option
+                        optionElement.innerHTML = `<span style="margin-left:10px; font-weight:bold;">${arabicLetters[index]}:</span> ${option}`;
+                        
+                        optionElement.addEventListener('click', function() {
+                            document.querySelectorAll('.answer-option').forEach(opt => {
+                                opt.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                        });
+                        
+                        answerOptions.appendChild(optionElement);
+                    });
+                    
+                    // Disable closing the modal until answer is confirmed
+                    closeModalBtn.style.display = 'none';
+                    
+                    // Show modal
+                    questionModal.style.display = 'flex';
+                    
+                    // Start timer
+                    startTimer();
+                }
+                
+                function startTimer() {
+                    // Clear any existing timer
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
+                    
+                    const timerElement = document.getElementById('question-timer');
+                    const timerNumber = document.querySelector('.timer-number');
+                    let timeLeft = 20;
+                    timerNumber.textContent = timeLeft;
+                    timerElement.className = 'timer';
+                    
+                    // Set initial progress
+                    timerElement.style.setProperty('--progress', '100%');
+                    
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        timerNumber.textContent = timeLeft;
+                        
+                        // Update progress
+                        const progress = (timeLeft / 20) * 100;
+                        timerElement.style.setProperty('--progress', `${progress}%`);
+                        
+                        // Add warning classes based on time left
+                        if (timeLeft <= 10 && timeLeft > 5) {
+                            timerElement.className = 'timer warning';
+                        } else if (timeLeft <= 5) {
+                            timerElement.className = 'timer danger';
+                        }
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            timerInterval = null; // Clear the interval ID
+                            timeExpired();
+                        }
+                    }, 1000);
+                }
+                
+                function timeExpired() {
+                    // Show the correct answer
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        if (option.dataset.correct === "true") {
+                            option.classList.add('correct');
+                        }
+                    });
+                    
+                    // Show a styled message about time expiration
+                    const timeoutMsg = document.createElement('div');
+                    timeoutMsg.className = 'time-expired';
+                    timeoutMsg.textContent = 'انتهى الوقت!';
+                    document.getElementById('answer-options').appendChild(timeoutMsg);
+                    
+                    // Disable the option selection
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        option.style.pointerEvents = 'none';
+                    });
+                    
+                    // After time expires, show the close button again
+                    document.getElementById('close-modal').style.display = 'block';
+                    
+                    // Auto-confirm after 2 seconds
+                    setTimeout(() => {
+                        document.getElementById('confirm-answer').click();
+                    }, 2000);
+                }
+                
+                // Close modal - prevent closing without answering
+                closeModalBtn.addEventListener('click', function(e) {
+                    // If timer is running, prevent closing
+                    if (timerInterval) {
+                        e.preventDefault();
+                        alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                        return;
+                    }
+                    
+                    // Otherwise allow closing
+                    questionModal.style.display = 'none';
+                });
+                
+                // Confirm answer button
+                confirmAnswerBtn.addEventListener('click', function() {
+                    // Clear timer
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
+                    
+                    // Show the close button again after confirmation
+                    document.getElementById('close-modal').style.display = 'block';
+                    
+                    const selectedOption = document.querySelector('.answer-option.selected');
+                    let isCorrect = false;
+                    
+                    // Show the correct answer regardless
+                    document.querySelectorAll('.answer-option').forEach(option => {
+                        if (option.dataset.correct === "true") {
+                            option.classList.add('correct');
+                        }
+                    });
+                    
+                    // If an option was selected and it's correct
+                    if (selectedOption && selectedOption.dataset.correct === "true") {
+                        isCorrect = true;
+                        groups[currentGroupIndex].score++;
+                        groups[currentGroupIndex].element.querySelector('.score').textContent = 
+                            groups[currentGroupIndex].score;
+                            
+                        // Show mini-confetti for correct answer
+                        createMiniConfetti();
+                    }
+                    
+                    // Disable the question
+                    currentQuestionElement.classList.add('disabled');
+                    
+                    // Update question counter
+                    questionsAnswered++;
+                    questionCounter.textContent = questionsAnswered;
+                    
+                    // Switch to next group
+                    groups[currentGroupIndex].element.classList.remove('current-player');
+                    currentGroupIndex = (currentGroupIndex + 1) % groups.length;
+                    groups[currentGroupIndex].element.classList.add('current-player');
+                    
+                    // Check if game is over (all questions answered)
+                    if (questionsAnswered === 60) {
+                        // Close modal
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                            gameEnd();
+                        }, 1500);
+                        return;
+                    }
+                    
+                    // Check for tiebreaker after 5 questions
+                    if (questionsAnswered % 5 === 0) {
+                        // Close modal first, then check for tiebreaker
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                            checkForTiebreaker();
+                        }, 1500);
+                    } else {
+                        // Close modal after showing correct answer
+                        setTimeout(() => {
+                            questionModal.style.display = 'none';
+                        }, 1500);
+                    }
+                });
+                
+                function checkForTiebreaker() {
+                    // Get max score
+                    const scores = groups.map(g => g.score);
+                    const maxScore = Math.max(...scores);
+                    
+                    // Count groups with max score
+                    const tiedGroups = groups.filter(g => g.score === maxScore).length;
+                    
+                    if (tiedGroups > 1) {
+                        tiebreakerSection.style.display = 'block';
+                    } else {
+                        tiebreakerSection.style.display = 'none';
+                    }
+                }
+                
+                function gameEnd() {
+                    gameEnded = true;
+                    
+                    // Find the winner(s)
+                    const scores = groups.map(g => g.score);
+                    const maxScore = Math.max(...scores);
+                    const winners = groups.filter(g => g.score === maxScore);
+                    
+                    // Show winner announcement
+                    winnerAnnouncement.style.display = 'flex';
+                    
+                    if (winners.length === 1) {
+                        // Single winner
+                        winnerName.textContent = winners[0].name;
+                        winnerScore.textContent = `${winners[0].score} نقاط`;
+                        createConfetti(); // Celebration confetti
+                    } else {
+                        // Multiple winners (tie)
+                        winnerName.textContent = 'تعادل بين: ' + winners.map(w => w.name).join(' و ');
+                        winnerScore.textContent = `${maxScore} نقاط`;
+                    }
+                }
+                
+                // Close winner announcement
+                document.getElementById('close-winner').addEventListener('click', function() {
+                    winnerAnnouncement.style.display = 'none';
+                });
+                
+                // New game button in winner modal
+                document.getElementById('new-game').addEventListener('click', function() {
+                    winnerAnnouncement.style.display = 'none';
+                    resetGame();
+                    gameEnded = false;
+                    
+                    // Show setup screen
+                    questionsContainer.style.display = 'none';
+                    gameControls.style.display = 'none';
+                    categoryLegend.style.display = 'none';
+                    groupSetup.style.display = 'block';
+                });
+                
+                // Next round button
+                document.getElementById('next-round').addEventListener('click', function() {
+                    tiebreakerSection.style.display = 'none';
+                });
+                
+                // Reset game button
+                document.getElementById('reset-game').addEventListener('click', function() {
+                    resetGame();
+                });
+                
+                function resetGame() {
+                    // Reshuffle questions for new game
+                    shuffle(allQuestions);
+                    
+                    // Recreate question circles
+                    createQuestions();
+                    
+                    // Reset scores
+                    groups.forEach(group => {
+                        group.score = 0;
+                        group.element.querySelector('.score').textContent = '0';
+                    });
+                    
+                    // Reset counter
+                    questionsAnswered = 0;
+                    questionCounter.textContent = '0';
+                    
+                    // Reset current group
+                    groups.forEach(g => g.element.classList.remove('current-player'));
+                    currentGroupIndex = 0;
+                    groups[currentGroupIndex].element.classList.add('current-player');
+                    
+                    // Hide tiebreaker
+                    tiebreakerSection.style.display = 'none';
+                }
+                
+                // Add keyboard support for modal
+                document.addEventListener('keydown', function(event) {
+                    if (questionModal.style.display === 'flex') {
+                        // Prevent Escape key closing if timer is still running
+                        if (event.key === 'Escape') {
+                            if (timerInterval) {
+                                event.preventDefault();
+                                alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                                return;
+                            }
+                            questionModal.style.display = 'none';
+                        }
+                        
+                        // Confirm with Enter key
+                        else if (event.key === 'Enter') {
+                            document.getElementById('confirm-answer').click();
+                        }
+                        
+                        // Select options with number keys 1-4
+                        else if (['1', '2', '3', '4'].includes(event.key)) {
+                            const index = parseInt(event.key) - 1;
+                            const options = document.querySelectorAll('.answer-option');
+                            if (index < options.length) {
+                                options.forEach(opt => opt.classList.remove('selected'));
+                                options[index].classList.add('selected');
+                            }
+                        }
+                        
+                        // Also support Arabic letters (أ=1, ب=2, ج=3, د=4)
+                        else if (['أ', 'ب', 'ج', 'د'].includes(event.key)) {
+                            const arabicKeys = ['أ', 'ب', 'ج', 'د'];
+                            const index = arabicKeys.indexOf(event.key);
+                            const options = document.querySelectorAll('.answer-option');
+                            if (index < options.length) {
+                                options.forEach(opt => opt.classList.remove('selected'));
+                                options[index].classList.add('selected');
+                            }
+                        }
+                    }
+                });
+                
+                // Prevent closing modal by clicking outside if timer is running
+                questionModal.addEventListener('click', function(event) {
+                    if (event.target === questionModal && timerInterval) {
+                        event.stopPropagation();
+                        alert('يجب عليك الإجابة على السؤال أو الانتظار حتى انتهاء الوقت');
+                    }
+                });
+                
+                // Fisher-Yates shuffle algorithm
+                function shuffle(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
+                
+                // Add confetti animation
+                function createConfetti() {
+                    const colors = ['#e5b34a', '#5c7c3e', '#cb703a', '#81b29a'];
+                    
+                    for (let i = 0; i < 100; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        
+                        // Random position
+                        confetti.style.left = `${Math.random() * 100}%`;
+                        
+                        // Random color
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        // Random size
+                        const size = Math.random() * 10 + 5;
+                        confetti.style.width = `${size}px`;
+                        confetti.style.height = `${size}px`;
+                        
+                        // Random shape
+                        const shapes = ['circle', 'square', 'triangle'];
+                        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                        if (shape === 'circle') {
+                            confetti.style.borderRadius = '50%';
+                        } else if (shape === 'triangle') {
+                            confetti.style.width = '0';
+                            confetti.style.height = '0';
+                            confetti.style.borderLeft = `${size}px solid transparent`;
+                            confetti.style.borderRight = `${size}px solid transparent`;
+                            confetti.style.borderBottom = `${size*1.5}px solid ${colors[Math.floor(Math.random() * colors.length)]}`;
+                            confetti.style.backgroundColor = 'transparent';
+                        }
+                        
+                        // Animation
+                        const duration = Math.random() * 3 + 2;
+                        confetti.style.animation = `confettiFall ${duration}s forwards`;
+                        
+                        document.body.appendChild(confetti);
+                        
+                        // Remove after animation
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, duration * 1000);
+                    }
+                }
+                
+                // Smaller confetti burst for correct answers
+                function createMiniConfetti() {
+                    const colors = ['#4caf50', '#66bb6a', '#81c784', '#a5d6a7'];
+                    const count = 30;
+                    
+                    for (let i = 0; i < count; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        
+                        // Position near the confirm button
+                        const button = document.getElementById('confirm-answer');
+                        const rect = button.getBoundingClientRect();
+                        
+                        confetti.style.position = 'absolute';
+                        confetti.style.left = `${rect.left + rect.width/2 + (Math.random() * 200 - 100)}px`;
+                        confetti.style.top = `${rect.top + (Math.random() * 100 - 50)}px`;
+                        
+                        // Random color
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        // Random size (smaller)
+                        const size = Math.random() * 6 + 3;
+                        confetti.style.width = `${size}px`;
+                        confetti.style.height = `${size}px`;
+                        confetti.style.borderRadius = '50%';
+                        
+                        // Animation (faster)
+                        const duration = Math.random() * 1 + 0.5;
+                        confetti.style.animation = `confettiFall ${duration}s forwards`;
+                        
+                        document.body.appendChild(confetti);
+                        
+                        // Remove after animation
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, duration * 1000);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
